@@ -2,6 +2,7 @@ PACKAGES=$(shell go list ./... | grep -v /vendor/)
 RACE := $(shell test $$(go env GOARCH) != "amd64" || (echo "-race"))
 VERSION := $(shell cat VERSION)
 
+
 help:
 	@echo 'Available commands:'
 	@echo
@@ -12,6 +13,10 @@ help:
 	@echo '    make restore  		Restore all dependencies.'
 	@echo '    make clean    		Clean the directory tree.'
 	@echo
+
+
+run:
+	go run -ldflags "-X main.version=`cat VERSION`" `ls *.go | grep -v _test.go` --in-file=$(i)
 
 test: ## run tests, except integration tests
 	@go test ${RACE} ${PACKAGES}
