@@ -6,7 +6,7 @@ import (
 )
 
 func testNewParser(t *testing.T) {
-	p, err := NewParser("test.json")
+	p, err := NewParser("test.json", nil)
 	assert.NotNil(t, err)
 	assert.Nil(t, p)
 }
