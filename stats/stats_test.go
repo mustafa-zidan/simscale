@@ -85,5 +85,3 @@ func BenchmarkMutex(b *testing.B) {
     <-e
     <-e
 }
-
-// TODO Test counters working correcly

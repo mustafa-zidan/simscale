@@ -29,11 +29,11 @@ type RawLogParser struct {
 
 func (p *RawLogParser) Process() error {
 	defer p.reader.Close()
-	lines := make(chan string)
 
+	lines := make(chan string)
 	go p.reader.Read(lines)
+
 	for line := range lines {
-		//TODO: Add counter lines processed
 		stats.Increment("total", 1)
 		l, err := p.Parse(line) // the line
 		if err != nil {
