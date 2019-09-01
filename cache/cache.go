@@ -67,6 +67,7 @@ func (c *Cache) goCacheWriter() {
 				tree.Insert(insert)
 			} else {
 				c.wg.Add(1)
+				stats.Increment("traces", 1)
 				tree := &LogTree{ID: insert.Trace, Orphens: make(map[string]Logs)}
 				tree.Insert(insert)
 				cache.Set(insert.Trace, tree)
@@ -80,6 +81,10 @@ func (c *Cache) goCacheWriter() {
 			break
 		}
 	}
+}
+
+func (c *Cache) Cleanup() {
+	c.stopChannel <- true
 	c.writer.Close()
 }
 
