@@ -13,22 +13,24 @@ import (
 var inFile, outFile, version string
 var flags = []cli.Flag{
 	cli.StringFlag{
-		Name:        "in-file",
+		Name:        "in-file, i",
 		Value:       "",
 		Usage:       "file to be processed",
 		Destination: &inFile,
 		Required:    true,
 	},
 	cli.StringFlag{
-		Name:        "out-file",
-		Value:       "resources/trace.txt",
-		Usage:       "file to be processed",
+		Name:        "out-file, o",
+		Value:       "trace.txt",
+		Usage:       "output trace file ",
 		Destination: &outFile,
 	},
 }
 
 func main() {
 	app := cli.NewApp()
+	app.Name = "Simscale"
+	app.Usage = "Simscale coding challange"
 	app.Flags = flags
 	app.Version = version
 
@@ -39,7 +41,12 @@ func main() {
 		p, err := parser.NewParser(inFile, cache)
 		p.Process()
 		wg.Wait()
-		log.Println(stats.CounterList())
+		s := stats.CounterList()
+		log.Printf("Total Number of Logs: \t\t %d\n", s["total"])
+		log.Printf("Number of Records parsed: \t\t %d\n", s["success"])
+		log.Printf("Number of Traces: \t\t\t %d\n", s["traces"])
+		log.Printf("Number of Orphen Logs: \t\t %d\n", s["orphens"])
+		log.Printf("Number of Malformed Logs: \t\t %d\n", s["malformed"])
 		return err
 	}
 
