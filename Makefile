@@ -16,7 +16,7 @@ help:
 
 
 run:
-	go run -ldflags "-X main.version=`cat VERSION`" `ls *.go | grep -v _test.go` --in-file=$(i)
+	go run -ldflags "-X main.version=`cat VERSION`" `ls *.go | grep -v _test.go` --in-file=$(i) --out-file=$(o)
 
 test: ## run tests, except integration tests
 	@go test ${RACE} ${PACKAGES}

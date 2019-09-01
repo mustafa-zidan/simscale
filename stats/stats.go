@@ -1,4 +1,4 @@
-package main
+package stats
 
 type Counter struct {
 	Bucket string

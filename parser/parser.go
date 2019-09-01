@@ -1,10 +1,12 @@
-package main
+package parser
 
 import (
-	"bufio"
 	"fmt"
+	"github.com/mustafa-zidan/simscale/cache"
+	. "github.com/mustafa-zidan/simscale/domain"
+	"github.com/mustafa-zidan/simscale/io"
+	"github.com/mustafa-zidan/simscale/stats"
 	"log"
-	"os"
 	"regexp"
 )
 
@@ -21,23 +23,25 @@ type Parser interface {
 }
 
 type RawLogParser struct {
-	inputFile *os.File
+	reader *io.FileReader
+	cache  *cache.Cache
 }
 
 func (p *RawLogParser) Process() error {
-	defer p.close()
+	defer p.reader.Close()
+	lines := make(chan string)
 
-	scanner := bufio.NewScanner(p.inputFile)
-	for scanner.Scan() {
+	go p.reader.Read(lines)
+	for line := range lines {
 		//TODO: Add counter lines processed
-		Increment("total", 1)
-		l, err := p.Parse(scanner.Text()) // the line
+		stats.Increment("total", 1)
+		l, err := p.Parse(line) // the line
 		if err != nil {
 			log.Println(err)
 		}
-		InsertLogToCache(l)
+
+		p.cache.Insert(l)
 	}
-	log.Println(CounterList())
 	return nil
 }
 
@@ -45,7 +49,7 @@ func (p *RawLogParser) Process() error {
 func (p *RawLogParser) Parse(line string) (*Log, error) {
 	matches := re.FindAllStringSubmatch(line, -1)
 	if len(matches) == 0 {
-		Increment("ignored", 1)
+		stats.Increment("ignored", 1)
 		return nil, fmt.Errorf("Invalid Log Format %s, Skipping!", line)
 	}
 
@@ -56,16 +60,8 @@ func (p *RawLogParser) Parse(line string) (*Log, error) {
 	return NewLog(m)
 }
 
-func NewParser(path string) (*RawLogParser, error) {
-	inFile, err := os.Open(path)
-	if err != nil {
-		log.Panic(err.Error(), path)
-		return nil, err
-	}
-	p := &RawLogParser{inputFile: inFile}
+func NewParser(filePath string, cache *cache.Cache) (*RawLogParser, error) {
+	fileReader := io.NewFileReader(filePath)
+	p := &RawLogParser{reader: fileReader, cache: cache}
 	return p, nil
-}
-
-func (p *RawLogParser) close() {
-	p.inputFile.Close()
 }

@@ -1,4 +1,4 @@
-package main
+package domain
 
 import (
 	"time"
@@ -19,9 +19,13 @@ func (l Logs) Len() int {
 }
 
 type Log struct {
-	Calls                        Logs
-	Start, End                   time.Time
-	Service, Span, Parent, Trace string
+	Start   time.Time `json:"start"`
+	End     time.Time `json:"end"`
+	Service string    `json:"service"`
+	Span    string    `json:"span"`
+	Calls   Logs      `json:"calls"`
+	Parent  string    `json:"-"`
+	Trace   string    `json:"-"`
 }
 
 // Tree depth first insertion runs with
@@ -31,7 +35,6 @@ func (l *Log) Insert(child *Log) bool {
 		return false
 	}
 	if l.Span == child.Parent {
-		Increment("success", 1)
 		l.Calls = append(l.Calls, child)
 		return true
 	}
@@ -46,9 +49,9 @@ func (l *Log) Insert(child *Log) bool {
 }
 
 type LogTree struct {
-	ID      string "json: id"
-	Root    *Log   "json: root"
-	Orphens map[string]Logs
+	ID      string          `json:"id"`
+	Root    *Log            `json:"root"`
+	Orphens map[string]Logs `json:"-"`
 }
 
 //TODO check if maybe better to construct only on write
@@ -89,5 +92,6 @@ func NewLog(properties map[string]string) (*Log, error) {
 		Service: properties["service"],
 		Span:    properties["span"],
 		Parent:  properties["caller_span"],
+		Calls:   make(Logs, 0),
 	}, nil
 }

@@ -1,10 +1,13 @@
 package main
 
 import (
+	"github.com/mustafa-zidan/simscale/cache"
+	"github.com/mustafa-zidan/simscale/parser"
+	"github.com/mustafa-zidan/simscale/stats"
 	"github.com/urfave/cli"
-
 	"log"
 	"os"
+	"sync"
 )
 
 var inFile, outFile, version string
@@ -18,7 +21,7 @@ var flags = []cli.Flag{
 	},
 	cli.StringFlag{
 		Name:        "out-file",
-		Value:       "out.json",
+		Value:       "resources/trace.txt",
 		Usage:       "file to be processed",
 		Destination: &outFile,
 	},
@@ -30,10 +33,13 @@ func main() {
 	app.Version = version
 
 	app.Action = func(c *cli.Context) error {
-		CounterInitialize()
-		InitTTLCache()
-		p, err := NewParser(inFile)
+		wg := &sync.WaitGroup{}
+		stats.CounterInitialize()
+		cache := cache.NewCache(outFile, wg)
+		p, err := parser.NewParser(inFile, cache)
 		p.Process()
+		wg.Wait()
+		log.Println(stats.CounterList())
 		return err
 	}
 
