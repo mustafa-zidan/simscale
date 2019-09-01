@@ -49,8 +49,8 @@ func (p *RawLogParser) Process() error {
 func (p *RawLogParser) Parse(line string) (*Log, error) {
 	matches := re.FindAllStringSubmatch(line, -1)
 	if len(matches) == 0 {
-		stats.Increment("ignored", 1)
-		return nil, fmt.Errorf("Invalid Log Format %s, Skipping!", line)
+		stats.Increment("malformed", 1)
+		return nil, fmt.Errorf("Malformed Log Format %s, Skipping!", line)
 	}
 
 	m := map[string]string{}
