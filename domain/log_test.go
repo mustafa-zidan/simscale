@@ -3,7 +3,6 @@ package domain
 import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
-	"log"
 	"testing"
 )
 
@@ -56,18 +55,38 @@ func rawLogs() []map[string]string {
 	return a
 }
 
-func TestLogInsertion(t *testing.T) {
+func TestLogInsertionOrdered(t *testing.T) {
+	rawLogs := rawLogs()
+	lt := &LogTree{ID: rawLogs[0]["trace"], Orphens: make(map[string]Logs)}
+	l, err := NewLog(rawLogs[3])
+	assert.NotNil(t, l)
+	assert.Nil(t, err)
+	lt.Insert(l)
+	l, err = NewLog(rawLogs[0])
+	lt.Insert(l)
+	assert.Equal(t, 1, len(lt.Root.Calls))
+	l, err = NewLog(rawLogs[1])
+	lt.Insert(l)
+	assert.Equal(t, 2, len(lt.Root.Calls))
+	l, err = NewLog(rawLogs[2])
+	lt.Insert(l)
+	assert.Equal(t, 2, len(lt.Root.Calls))
+	assert.Equal(t, 1, len(lt.Root.Calls[1].Calls))
+	assert.Equal(t, "34z4ib4a", lt.Root.Span)
+	assert.Equal(t, "zgbtx32n", lt.Root.Calls[0].Span)
+	assert.Equal(t, "ai67mto3", lt.Root.Calls[1].Span)
+	assert.Equal(t, "nxlpyoj7", lt.Root.Calls[1].Calls[0].Span)
+}
+
+func TestLogInsertionOutOfOrder(t *testing.T) {
 	rawLogs := rawLogs()
 	lt := &LogTree{ID: rawLogs[0]["trace"], Orphens: make(map[string]Logs)}
 	for _, rl := range rawLogs {
-		log.Println(rl)
 		l, err := NewLog(rl)
-		log.Println(l)
 		assert.NotNil(t, l)
 		assert.Nil(t, err)
 		lt.Insert(l)
 	}
-	log.Println(lt)
 	assert.NotNil(t, lt.Root)
 	assert.Equal(t, 2, len(lt.Root.Calls))
 	assert.Equal(t, 1, len(lt.Root.Calls[1].Calls))
@@ -75,5 +94,4 @@ func TestLogInsertion(t *testing.T) {
 	assert.Equal(t, "zgbtx32n", lt.Root.Calls[0].Span)
 	assert.Equal(t, "ai67mto3", lt.Root.Calls[1].Span)
 	assert.Equal(t, "nxlpyoj7", lt.Root.Calls[1].Calls[0].Span)
-
 }
