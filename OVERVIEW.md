@@ -56,7 +56,7 @@ func (t JSONTime) MarshalJSON() ([]byte, error) {
 I needed to create wrapper for `FileReader` and `FileWriter` under `io` directory to try to decouple all IO operations
 from the `Parser` and the `Cache`to make it more testable.
 
-I Created Interfaces for Both `Reader` and `Writer` that looks like the following:
+I Created Interfaces for Both `Reader` and `Writer` that look like the following:
 
 ```go
 type Reader interface {
@@ -76,7 +76,7 @@ type Writer interface {
  `Cache`
 
  ### File Reader
-Reading File leveraging channel to be able to process raw log lines done concurrently
+Reading File leveraging goroutines and channel to be able to process raw log lines concurrently
 
 In the Parser File Reading is done as following:
 
@@ -221,5 +221,5 @@ func DoSomething() {
 ```
 
 ## Final Notes:
-- Calculating more stats is possible - average tree depth etc.- but would be more complex and maybe require significant change to do so
+- Calculating more stats is possible - average tree depth etc.- but would be more complex and maybe require significant change.
 - In production mode I would add like to have more tests in place.

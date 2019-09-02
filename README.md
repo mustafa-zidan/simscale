@@ -42,6 +42,10 @@ The app can be fully dockerized and this can be done by running
 ```bash
 make run/docker
 ```
+> **NOTE**: This command expects 3 env variables to be set:
+> - `DOCKER_MOUNT_DIR`: directory where the input file resides
+> - `DOCKER_INPUT_FILE`: name of input file e.g., `small-log.txt`
+> - `DOCKER_OUTPUT_FILE`: name of output file e.g., `small-trace.txt`
 
 This command will build the app, image and run the docker container.
 To build the docker image only run
@@ -49,10 +53,6 @@ To build the docker image only run
 ```bash
 make build/docker
 ```
-> **NOTE**: This command expects 3 env variables to be set:
-> - `DOCKER_MOUNT_DIR`: directory where the input file resides
-> - `DOCKER_INPUT_FILE`: name of input file e.g., `small-log.txt`
-> - `DOCKER_OUTPUT_FILE`: name of output file e.g., `small-trace.txt`
 
 ### Test
 
@@ -68,4 +68,4 @@ To include benchmark tests
 make test/benchmark
 ```
 ## More Info
-Check Out the overview to understand more about the datastructure in [Overview](/OVERVIEW.md) doc
+Check Out the [Overview](/OVERVIEW.md) to understand more about the repo structure, datastructures, algorithems used, techniques...etc.
